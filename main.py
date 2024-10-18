@@ -8,7 +8,10 @@ from aiogram import F
 
 
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+        level=logging.INFO,
+        format=u'%(filename)s:%(lineno)d #%(levelname)-8s [%(asctime)s] - %(name)s - %(message)s',
+    )
 bot = Bot(token=config.TOKEN)
 dp = Dispatcher()
 user_data = {}
@@ -45,6 +48,16 @@ async def callbacks_num(callback: types.CallbackQuery):
         await callback.message.edit_text("Отправьте ссылку на вебхук")
 
     await callback.answer()
+
+@dp.message(Command('id'))
+async def get_id(message: types.Message):
+    await message.answer(f'{message.chat.id}')
+    chat_id = message.chat.id
+    print(chat_id)
+
+async def webhook_test(message, id = 1871038143):
+    await bot.send_message(chat_id = id, text=message)
+
 
 if __name__ == "__main__":
     asyncio.run(main())
