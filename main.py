@@ -46,9 +46,19 @@ async def callbacks_num(callback: types.CallbackQuery):
                 await callback.message.edit_text(f"Вот ссылка URL '{i}', вставьте её в вебхуки в гитхабе и все, выбрав все ивенты.")
                 webhook_list.x[i] = 1
                 break
-                
+
     elif action == "2":
-        await callback.message.edit_text("Список вебхуков:")
+        y = []
+        for i in webhook_list.x:
+            if webhook_list.x[i] != 0:
+                y.append(i)     
+        message = ''
+        for item in y:
+            message += item 
+            message += '\n'
+        await callback.message.edit_text(f"Список вебхуков: \n{message} ")        
+
+
     elif action == "3":
         await callback.message.edit_text("Отправьте ссылку на вебхук")
 

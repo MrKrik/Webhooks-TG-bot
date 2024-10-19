@@ -21,13 +21,5 @@ x = {
 'one': 0,
 'one': 0,
 
-
 }
 
-
-
-# for i in x:
-#     if x[i] == 0:
-#         print(i)
-#         x[i] = 1
-#         break
