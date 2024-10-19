@@ -10,12 +10,17 @@ async def hello():
 @app.route('/webhooks', methods=['POST'])
 async def submit():
     # Обработка запроса
-    name = (await request.json)["action"]
-    # Передача в бота
-    await webhook_test(name)
-    print(name)
+    content_type = request.headers.get('content-type')
+    if (content_type == 'application/json'):
+        request_json = await request.get_json()
+        print(request_json)
+    else:
+        name = (await request.form)['key']
+        # Передача в бота
+        await webhook_test(name)
+        print(name)
     return f'Hello, {name}'
-# f
+
 print('''F
       f
       f
