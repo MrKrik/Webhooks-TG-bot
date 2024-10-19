@@ -12,9 +12,8 @@ async def submit():
     # Обработка запроса
     content_type = request.headers.get('content-type')
     if (content_type == 'application/json'):
-        request_json = (await request.get_json())['action']
         name = request.headers.get('X-GitHub-Event')
-        print(request_json)
+        print(await request.get_data())
         print(name)
         await webhook_test(name)
         
