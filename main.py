@@ -60,7 +60,6 @@ async def callbacks_num(callback: types.CallbackQuery):
     elif action == "3":
         await callback.message.edit_text("Отправьте ссылку на вебхук")
 
-#     await callback.answer()
 
 
 @dp.message(Command('id'))
