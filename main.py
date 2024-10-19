@@ -5,7 +5,7 @@ from aiogram import Bot, Dispatcher, types
 from aiogram.filters import CommandStart, Command
 from aiogram.types import ReplyKeyboardRemove, ReplyKeyboardMarkup, KeyboardButton
 from aiogram import F
-
+import webhook_list
 
 
 logging.basicConfig(
@@ -41,13 +41,19 @@ async def callbacks_num(callback: types.CallbackQuery):
     action = callback.data.split("_")[1]
 
     if action == "1":
-        await callback.message.edit_text("Отправьте ссылку на вебхук")
+        for i in webhook_list.x:
+            if webhook_list.x[i] == 0:
+                await callback.message.edit_text(f"Вот ссылка URL '{i}', вставьте её в вебхуки в гитхабе и все, выбрав все ивенты.")
+                webhook_list.x[i] = 1
+                break
+                
     elif action == "2":
         await callback.message.edit_text("Список вебхуков:")
     elif action == "3":
         await callback.message.edit_text("Отправьте ссылку на вебхук")
 
     await callback.answer()
+
 
 @dp.message(Command('id'))
 async def get_id(message: types.Message):
