@@ -4,9 +4,7 @@ import config
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import CommandStart, Command
 from aiogram.types import ReplyKeyboardRemove, ReplyKeyboardMarkup, KeyboardButton
-from aiogram import F
 import webhook_list
-
 
 logging.basicConfig(
         level=logging.INFO,
@@ -62,7 +60,7 @@ async def callbacks_num(callback: types.CallbackQuery):
     elif action == "3":
         await callback.message.edit_text("Отправьте ссылку на вебхук")
 
-    await callback.answer()
+#     await callback.answer()
 
 
 @dp.message(Command('id'))
@@ -71,8 +69,14 @@ async def get_id(message: types.Message):
     chat_id = message.chat.id
     print(chat_id)
 
-async def webhook_test(message, id = 1871038143):
-    await bot.send_message(chat_id = id, text=message)
+@dp.message(Command('threadid'))
+async def get_id(message: types.Message):
+    await message.answer(f'{message.message_thread_id}')
+    chat_id = message.chat.id
+    print(chat_id)
+
+async def webhook_test(message, id = -1002360036125, thread_id = 160):
+    await bot.send_message(chat_id = id, text=message, message_thread_id=thread_id)
 
 
 if __name__ == "__main__":
