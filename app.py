@@ -10,7 +10,7 @@ async def hello():
 @app.route('/webhooks', methods=['POST'])
 async def submit():
     # Обработка запроса
-    name = (await request.form)['key']
+    name = (await request.json)["action"]
     # Передача в бота
     await webhook_test(name)
     print(name)
