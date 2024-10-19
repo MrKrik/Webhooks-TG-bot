@@ -5,7 +5,6 @@ from aiogram import Bot, Dispatcher, types
 from aiogram.filters import CommandStart, Command
 from aiogram.types import ReplyKeyboardRemove, ReplyKeyboardMarkup, KeyboardButton
 from aiogram import F
-import webhook_list
 
 
 logging.basicConfig(
