@@ -13,7 +13,8 @@ async def submit():
     content_type = request.headers.get('content-type')
     if (content_type == 'application/json'):
         request_json = await request.get_json()
-        print(request_json['action'])
+        print(request.headers.get('X-GitHub-Event'))
+        print((await request.get_data))
     else:
         name = (await request.form)['key']
         # Передача в бота
