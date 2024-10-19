@@ -16,7 +16,7 @@ async def submit():
         print((await request.get_json()))
         print(name)
         await webhook_test(name)
-        
+        # f
     else:
         name = (await request.form)['key']
         # Передача в бота
