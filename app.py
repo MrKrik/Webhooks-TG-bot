@@ -13,7 +13,7 @@ async def submit():
     content_type = request.headers.get('content-type')
     if (content_type == 'application/json'):
         name = request.headers.get('X-GitHub-Event')
-        print(await request.get_json()['ref'])
+        print((await request.get_json())['ref'])
         print(name)
         await webhook_test(name)
         
