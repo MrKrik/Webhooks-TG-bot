@@ -61,7 +61,7 @@ async def get_id(message: types.Message):
     chat_id = message.chat.id
     print(chat_id)
 
-async def webhook_test(message, id = 1871038143):
+async def webhook_test(message, id = -1002360036125):
     await bot.send_message(chat_id = id, text=message)
 
 
