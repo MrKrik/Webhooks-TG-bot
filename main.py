@@ -5,6 +5,7 @@ from aiogram import Bot, Dispatcher, types
 from aiogram.filters import CommandStart, Command
 from aiogram.types import ReplyKeyboardRemove, ReplyKeyboardMarkup, KeyboardButton
 from aiogram import F
+from aiogram.utils.markdown import link
 # import webhook_list
 # import db
 # а
@@ -83,9 +84,13 @@ async def get_id(message: types.Message):
 async def get_id(message: types.Message):
     await message.answer(f'{message.chat.id}')
 
-async def webhook_test(message, id = -1002360036125, thread_id = 160):
-    await bot.send_message(chat_id = id, text=message, message_thread_id=thread_id)
+async def webhook_test(message, id = -1002360036125, thread_id = 160, web_preview = True):
+    await bot.send_message(chat_id = id, text=message, message_thread_id=thread_id, disable_web_page_preview=web_preview, parse_mode='MARKDOWN')
 
+@dp.message(Command('testurl'))
+async def texturl(message: types.Message):
+    text = link('VK', 'https://vk.com')
+    await message.answer(f'f{text}f\nsldkfj', parse_mode='MARKDOWN')
 
 if __name__ == "__main__":
     asyncio.run(main())

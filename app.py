@@ -1,5 +1,6 @@
 from quart import Quart, request
 from main import webhook_test
+from aiogram.utils.markdown import link
 
 app = Quart(__name__)
 
@@ -13,21 +14,29 @@ async def submit():
     content_type = request.headers.get('content-type')
     if (content_type == 'application/json'):
         name = request.headers.get('X-GitHub-Event')
-        commitAuthor = (await request.get_json())['head_commit']['author']['name']
-        changesurl = (await request.get_json())['head_commit']['url']
-        comment = (await request.get_json())['head_commit']['message']
-        if (await request.get_json())['created'] == True:
+        json_data = (await request.get_json())
+        print(json_data)
+        commitAuthor = json_data['sender']['login']
+        commitAuthor_link = json_data['sender']['html_url']
+        commitAuthor = link(commitAuthor, commitAuthor_link)
+        changesurl = json_data['head_commit']['url']
+        comment = json_data['head_commit']['message']
+        if json_data['created'] == True:
             message = "Создал ветку"
         else:
             message = 'Сделал push'
         response = f'{commitAuthor}\n{message}\n{comment}\n{changesurl}'
-        await webhook_test(response)
+        # await webhook_test(response)
     else:
         name = (await request.form)['key']
         # Передача в бота
         await webhook_test(name)
         print(name)
     return f'Hello, {name}'
+
+@app.route('/webhooks/<pageID>', methods=['GET'])
+async def testget(pageID):
+    return pageID
 
 print('''F
       f
