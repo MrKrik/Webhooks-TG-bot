@@ -7,7 +7,7 @@ app = Quart(__name__)
 @app.route("/")
 async def hello():
     return "Hello World!"
-
+# f
 @app.route('/webhooks', methods=['POST'])
 async def submit():
     # Обработка запроса
