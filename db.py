@@ -41,11 +41,9 @@ def show(x):
             y.append(i["url"])
     return y
 
-def delete(x, y):
-    a = col_webhooks.find({"url" : x})
-    if a["id_user"] == y:
-        col_webhooks.update_one(a, {"$set": {"state" : "available", "id_user" : ""}})
-
+def delete_webhooks(x, y):
+    col_webhooks.update_one({"url" : x, "id_user" : y}, {"$set": {"state" : "available", "id_user" : ""}})
+    
 # app.run()
 # def create(x):
 #     max_id = -1
