@@ -41,11 +41,12 @@ async def callbacks_num(callback: types.CallbackQuery, ):
     action = callback.data.split("_")[1]
 
     if action == "1":
-        url = db.create(callback.message.from_user.id)
+        url = db.create(callback.message.chat.id)
+        print(callback.message.chat.id)
         await callback.message.edit_text(f"Вот ссылка URL '( {url} )', вставьте её в вебхуки в гитхабе и все, выбрав все ивенты.")
 
     elif action == "2":
-        y = db.show(callback.message.from_user.id)
+        y = db.show(callback.message.chat.id)
         message = '' 
         for item in y:
             message += item 
@@ -58,7 +59,9 @@ async def callbacks_num(callback: types.CallbackQuery, ):
 
 @dp.message(F.text.startswith("http://127.0.0.1:5000/webhooks/"))
 async def show(message: types.Message):
-    db.delete(message, message.from_user.id)
+    print(message.text)
+    print(message.chat.id)
+    db.delete_webhooks(message.text, message.chat.id)
     await message.answer("Сообщение удалено")
     
 
