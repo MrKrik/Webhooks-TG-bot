@@ -5,8 +5,8 @@ from aiogram import Bot, Dispatcher, types
 from aiogram.filters import CommandStart, Command
 from aiogram.types import ReplyKeyboardRemove, ReplyKeyboardMarkup, KeyboardButton
 from aiogram import F
-import webhook_list
-import db
+# import webhook_list
+# import db
 
 logging.basicConfig(
         level=logging.INFO,

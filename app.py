@@ -15,11 +15,12 @@ async def submit():
         name = request.headers.get('X-GitHub-Event')
         commitAuthor = (await request.get_json())['head_commit']['author']['name']
         changesurl = (await request.get_json())['head_commit']['url']
+        comment = (await request.get_json())['head_commit']['message']
         if (await request.get_json())['created'] == True:
             message = "Создал ветку"
         else:
             message = 'Сделал push'
-        response = f'{commitAuthor}\n{message}\n{changesurl}'
+        response = f'{commitAuthor}\n{message}\n{comment}\n{changesurl}'
         await webhook_test(response)
     else:
         name = (await request.form)['key']
