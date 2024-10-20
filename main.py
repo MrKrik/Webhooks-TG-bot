@@ -4,7 +4,9 @@ import config
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import CommandStart, Command
 from aiogram.types import ReplyKeyboardRemove, ReplyKeyboardMarkup, KeyboardButton
+from aiogram import F
 import webhook_list
+import db
 
 logging.basicConfig(
         level=logging.INFO,
@@ -34,23 +36,17 @@ async def cmd_random(message: types.Message):
     
 
 @dp.callback_query(F.data.startswith("num_"))
-async def callbacks_num(callback: types.CallbackQuery):
+async def callbacks_num(callback: types.CallbackQuery, ):
 
     action = callback.data.split("_")[1]
 
     if action == "1":
-        for i in webhook_list.x:
-            if webhook_list.x[i] == 0:
-                await callback.message.edit_text(f"Вот ссылка URL '{i}', вставьте её в вебхуки в гитхабе и все, выбрав все ивенты.")
-                webhook_list.x[i] = 1
-                break
+        url = db.create(callback.message.from_user.id)
+        await callback.message.edit_text(f"Вот ссылка URL '( {url} )', вставьте её в вебхуки в гитхабе и все, выбрав все ивенты.")
 
     elif action == "2":
-        y = []
-        for i in webhook_list.x:
-            if webhook_list.x[i] != 0:
-                y.append(i)     
-        message = ''
+        y = db.show(callback.message.from_user.id)
+        message = '' 
         for item in y:
             message += item 
             message += '\n'
@@ -60,10 +56,16 @@ async def callbacks_num(callback: types.CallbackQuery):
     elif action == "3":
         await callback.message.edit_text("Отправьте ссылку на вебхук")
 
+@dp.message(F.text.startswith("http://127.0.0.1:5000/webhooks/"))
+async def show(message: types.Message):
+    db.delete(message, message.from_user.id)
+    await message.answer("Сообщение удалено")
+    
 
 
 @dp.message(Command('id'))
 async def get_id(message: types.Message):
+    print(message.from_user.id)
     await message.answer(f'{message.chat.id}')
     chat_id = message.chat.id
     print(chat_id)
@@ -73,6 +75,10 @@ async def get_id(message: types.Message):
     await message.answer(f'{message.message_thread_id}')
     chat_id = message.chat.id
     print(chat_id)
+
+@dp.message(Command('user'))
+async def get_id(message: types.Message):
+    await message.answer(f'{message.chat.id}')
 
 async def webhook_test(message, id = -1002360036125, thread_id = 160):
     await bot.send_message(chat_id = id, text=message, message_thread_id=thread_id)
