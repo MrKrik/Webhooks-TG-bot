@@ -17,7 +17,8 @@ async def view_webhooks(callback: types.CallbackQuery):
 @router.callback_query(F.data.startswith("webhook_"))
 async def view_webhooks_information(callback: types.CallbackQuery):
     webhook_name = callback.data.split("_")[1]
-    buttons = [[types.InlineKeyboardButton(text='Удалить вебхук', callback_data='webhookdelete_'+webhook_name)]]
+    buttons = [[types.InlineKeyboardButton(text='Удалить вебхук', callback_data='webhookdelete_'+webhook_name)]
+               [types.InlineKeyboardButton(text='Назад', callback_data='view_webhooks')]]
     keyboard = types.InlineKeyboardMarkup(inline_keyboard=buttons)
     await callback.message.edit_text(db.get_webhooks_info(webhook_name=webhook_name),reply_markup=keyboard)
 

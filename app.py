@@ -4,14 +4,13 @@ from aiogram.utils.markdown import link
 import db
 from os import system
 
-system('main.py')
 
 app = Quart(__name__)
 
 @app.route("/")
 async def hello():
     return "Hello World!"
-# f
+
 @app.route('/webhooks/<webhookUrl>', methods=['POST'])
 async def submit(webhookUrl):
     # Обработка запроса
@@ -34,13 +33,6 @@ async def submit(webhookUrl):
         response = f'{commitAuthor}\n{message}\n{comment}\n{changesurl}'
         message_settings = db.get_message_settings(webhookUrl)
         await webhook_send(text=response, channel_id=message_settings['channel_id'], thread_id=message_settings['thread_id'])
-    else:
-        name = (await request.form)['key']
-        # Передача в бота
-        await webhook_send(name)
-        print(name)
-    return f'Hello, {name}'
-
 
 if __name__ == "__main__":
     app.run()
