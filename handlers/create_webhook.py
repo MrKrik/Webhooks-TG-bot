@@ -24,6 +24,7 @@ def webhook_create(name,user_id, channel_id, thread_id):
 
 @router.callback_query(F.data == "create_webhhok")
 async def catch_channel_id(callback: types.CallbackQuery, state:FSMContext):
+    await callback.answer()
     await state.set_state(CreateWebhook.name)
     await callback.message.answer("Введите название вашего вебхука")
 
