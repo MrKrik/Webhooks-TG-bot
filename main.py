@@ -3,12 +3,16 @@ import logging
 import config
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import CommandStart, Command
-from aiogram.types import ReplyKeyboardRemove, ReplyKeyboardMarkup, KeyboardButton
+from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import StatesGroup, State
 from aiogram import F
 from aiogram.utils.markdown import link
-# import webhook_list
-# import db
-# а
+from handlers import create_webhook, view_webhooks
+from keyboards import menu
+from aiogram import types
+import db
+
+
 logging.basicConfig(
         level=logging.INFO,
         format=u'%(filename)s:%(lineno)d #%(levelname)-8s [%(asctime)s] - %(name)s - %(message)s',
@@ -17,55 +21,14 @@ bot = Bot(token=config.TOKEN)
 dp = Dispatcher()
 user_data = {}
 
-def get_keyboard():
-    buttons = [
-        [types.InlineKeyboardButton(text="Добавление вебхуков", callback_data="num_1")],
-        [types.InlineKeyboardButton(text="Просмотр Вебхуков", callback_data="num_2")],
-        [types.InlineKeyboardButton(text="Удаление вебхуков", callback_data="num_3")]
-    ]
-    keyboard = types.InlineKeyboardMarkup(inline_keyboard=buttons)
-    return keyboard
-
-async def main():
-    await bot.delete_webhook(drop_pending_updates=True)
-    await dp.start_polling(bot)
-
-
 @dp.message(CommandStart())
-async def cmd_random(message: types.Message):
-    await message.answer("Выберите действие:", reply_markup=get_keyboard())
-    
+async def cmd_random(message: types.Message, state:FSMContext):
+    await state.clear()
+    await message.answer("Выберите действие:", reply_markup=menu.menu_keyboard())
 
-@dp.callback_query(F.data.startswith("num_"))
-async def callbacks_num(callback: types.CallbackQuery, ):
-
-    action = callback.data.split("_")[1]
-
-    if action == "1":
-        url = db.create(callback.message.chat.id)
-        print(callback.message.chat.id)
-        await callback.message.edit_text(f"Вот ссылка URL '( {url} )', вставьте её в вебхуки в гитхабе и все, выбрав все ивенты.")
-
-    elif action == "2":
-        y = db.show(callback.message.chat.id)
-        message = '' 
-        for item in y:
-            message += item 
-            message += '\n'
-        await callback.message.edit_text(f"Список вебхуков: \n{message} ")        
-
-
-    elif action == "3":
-        await callback.message.edit_text("Отправьте ссылку на вебхук")
-
-@dp.message(F.text.startswith("http://127.0.0.1:5000/webhooks/"))
-async def show(message: types.Message):
-    print(message.text)
-    print(message.chat.id)
-    db.delete_webhooks(message.text, message.chat.id)
-    await message.answer("Сообщение удалено")
-    
-
+@dp.callback_query(F.data == "main_menu")
+async def go_main_menu(callback: types.CallbackQuery):
+    await callback.message.edit_text("Выберите действие:", reply_markup=menu.menu_keyboard())
 
 @dp.message(Command('id'))
 async def get_id(message: types.Message):
@@ -84,13 +47,19 @@ async def get_id(message: types.Message):
 async def get_id(message: types.Message):
     await message.answer(f'{message.chat.id}')
 
-async def webhook_test(message, id = -1002360036125, thread_id = 160, web_preview = True):
-    await bot.send_message(chat_id = id, text=message, message_thread_id=thread_id, disable_web_page_preview=web_preview, parse_mode='MARKDOWN')
+async def webhook_send(message, channel_id = -1002360036125, thread_id = 160, web_preview = True):
+    await bot.send_message(chat_id = channel_id, text=message, message_thread_id=thread_id, disable_web_page_preview=web_preview, parse_mode='MARKDOWN')
 
 @dp.message(Command('testurl'))
 async def texturl(message: types.Message):
     text = link('VK', 'https://vk.com')
     await message.answer(f'f{text}f\nsldkfj', parse_mode='MARKDOWN')
+
+async def main():
+    dp.include_router(create_webhook.router)
+    dp.include_router(view_webhooks.router)
+    await bot.delete_webhook(drop_pending_updates=True)
+    await dp.start_polling(bot)
 
 if __name__ == "__main__":
     asyncio.run(main())

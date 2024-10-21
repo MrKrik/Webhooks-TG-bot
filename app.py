@@ -1,6 +1,7 @@
 from quart import Quart, request
-from main import webhook_test
+from main import webhook_send
 from aiogram.utils.markdown import link
+import db
 
 app = Quart(__name__)
 
@@ -8,9 +9,11 @@ app = Quart(__name__)
 async def hello():
     return "Hello World!"
 # f
-@app.route('/webhooks', methods=['POST'])
-async def submit():
+@app.route('/webhooks/<webhookUrl>', methods=['POST'])
+async def submit(webhookUrl):
     # Обработка запроса
+    if db.get_message_settings(webhookUrl) == None:
+        return
     content_type = request.headers.get('content-type')
     if (content_type == 'application/json'):
         name = request.headers.get('X-GitHub-Event')
@@ -26,40 +29,15 @@ async def submit():
         else:
             message = 'Сделал push'
         response = f'{commitAuthor}\n{message}\n{comment}\n{changesurl}'
-        # await webhook_test(response)
+        message_settings = db.get_message_settings(webhookUrl)
+        await webhook_send(text=response, channel_id=message_settings['channel_id'], thread_id=message_settings['thread_id'])
     else:
         name = (await request.form)['key']
         # Передача в бота
-        await webhook_test(name)
+        await webhook_send(name)
         print(name)
     return f'Hello, {name}'
 
-@app.route('/webhooks/<pageID>', methods=['GET'])
-async def testget(pageID):
-    return pageID
 
-print('''F
-      f
-      f
-      f
-      f
-      f
-      f
-      ff
-      f
-      f
-      f
-      f
-      f
-      f
-      ff
-      f
-      f
-      f
-      f
-      f
-      ff
-      f
-      ''')
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()
