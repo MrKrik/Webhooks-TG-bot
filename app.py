@@ -6,7 +6,7 @@ import db
 
 app = Quart(__name__)
 
-@app.route('/webhooks/<webhookUrl>', methods=['POST'])
+@app.route('/github-webhook/<webhookUrl>', methods=['POST'])
 async def submit(webhookUrl):
     # Обработка запроса
     if db.get_message_settings(webhookUrl) == None:

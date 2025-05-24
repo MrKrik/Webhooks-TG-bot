@@ -18,7 +18,7 @@ class CreateWebhook(StatesGroup):
 def webhook_create(name,user_id, channel_id, thread_id):
     server_url = config.URL
     random_url = ''.join(choices(string.ascii_letters,k=20))
-    full_url = server_url+'webhooks/'+random_url
+    full_url = server_url+'github-webhook/'+random_url
     db.add(name=name,url=random_url, channel_id=channel_id, thread_id=thread_id, author_id=user_id)
     return full_url
 
