@@ -2,7 +2,6 @@ from quart import Quart, request
 from main import webhook_send
 from aiogram.utils.markdown import link
 import db
-from os import system
 
 
 app = Quart(__name__)

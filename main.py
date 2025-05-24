@@ -4,13 +4,10 @@ import config
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import CommandStart, Command
 from aiogram.fsm.context import FSMContext
-from aiogram.fsm.state import StatesGroup, State
 from aiogram import F
-from aiogram.utils.markdown import link
 from handlers import create_webhook, view_webhooks
 from keyboards import menu
 from aiogram import types
-import db
 
 
 logging.basicConfig(
@@ -19,7 +16,6 @@ logging.basicConfig(
     )
 bot = Bot(token=config.TOKEN)
 dp = Dispatcher()
-user_data = {}
 
 @dp.message(CommandStart())
 async def cmd_random(message: types.Message, state:FSMContext):
@@ -32,7 +28,6 @@ async def go_main_menu(callback: types.CallbackQuery):
 
 @dp.message(Command('id'))
 async def get_id(message: types.Message):
-    print(message.from_user.id)
     await message.answer(f'{message.chat.id}')
 
 @dp.message(Command('threadid'))
@@ -43,7 +38,7 @@ async def get_id(message: types.Message):
 async def get_id(message: types.Message):
     await message.answer(f'{message.chat.id}')
 
-async def webhook_send(message, channel_id = -1002360036125, thread_id = 160, web_preview = True):
+async def webhook_send(message, channel_id = config.TEST_CHANNEL, thread_id = config.TEST_THREAD, web_preview = True):
     await bot.send_message(chat_id = channel_id, text=message, message_thread_id=thread_id, disable_web_page_preview=web_preview, parse_mode='MARKDOWN')
 
 async def main():
