@@ -7,10 +7,6 @@ from os import system
 
 app = Quart(__name__)
 
-@app.route("/")
-async def hello():
-    return "Hello World!"
-
 @app.route('/webhooks/<webhookUrl>', methods=['POST'])
 async def submit(webhookUrl):
     # Обработка запроса

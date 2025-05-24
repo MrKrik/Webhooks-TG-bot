@@ -34,14 +34,10 @@ async def go_main_menu(callback: types.CallbackQuery):
 async def get_id(message: types.Message):
     print(message.from_user.id)
     await message.answer(f'{message.chat.id}')
-    chat_id = message.chat.id
-    print(chat_id)
 
 @dp.message(Command('threadid'))
 async def get_id(message: types.Message):
     await message.answer(f'{message.message_thread_id}')
-    chat_id = message.chat.id
-    print(chat_id)
 
 @dp.message(Command('user'))
 async def get_id(message: types.Message):
@@ -49,11 +45,6 @@ async def get_id(message: types.Message):
 
 async def webhook_send(message, channel_id = -1002360036125, thread_id = 160, web_preview = True):
     await bot.send_message(chat_id = channel_id, text=message, message_thread_id=thread_id, disable_web_page_preview=web_preview, parse_mode='MARKDOWN')
-
-@dp.message(Command('testurl'))
-async def texturl(message: types.Message):
-    text = link('VK', 'https://vk.com')
-    await message.answer(f'f{text}f\nsldkfj', parse_mode='MARKDOWN')
 
 async def main():
     dp.include_router(create_webhook.router)

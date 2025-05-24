@@ -24,7 +24,6 @@ def get_webhooks_info(webhook_name):
 def delete_webhook(webhook_name):
     coll_webhooks.delete_one({'webhook_name':webhook_name})
 
-get_message_settings('fff')
 
 
 
