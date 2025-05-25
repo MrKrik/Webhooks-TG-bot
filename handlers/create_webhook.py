@@ -3,7 +3,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram import types, F, Router
 from random import choices
 import string
-import config
+import tests.config as config
 import db
 
 router = Router()

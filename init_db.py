@@ -1,5 +1,5 @@
 import pymongo
-import config
+import tests.config as config
 
 client = pymongo.MongoClient(config.DB_URL)
 Git = client["GitHook-db"]

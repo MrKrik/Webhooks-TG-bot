@@ -1,6 +1,6 @@
 import asyncio
 import logging
-import config
+import tests.config as config
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import CommandStart, Command
 from aiogram.fsm.context import FSMContext
