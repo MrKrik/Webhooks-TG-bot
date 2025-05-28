@@ -1,10 +1,14 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
+
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type github_issue struct {
@@ -63,6 +67,13 @@ func setupHandlers() *WebhookDispatcher {
 	return dispatcher
 }
 
+func commit(payload *github_webhook) error {
+	message := "Сделан коммит"
+	commitAuthor := payload.Sender.Login
+	repository_name := payload.Repository.Full_name
+	issue_url := payload.Repository
+}
+
 func opened(payload *github_webhook) error {
 	message := "Открыт вопрос"
 	repository_name := payload.Repository.Full_name
@@ -102,6 +113,26 @@ func handleWebhook(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+
+	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(" mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.2.6"))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Create connect
+	err = client.Connect(context.TODO())
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Check the connection
+	err = client.Ping(context.TODO(), nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println("Connected to MongoDB!")
+
 	mux := http.NewServeMux()
 	mux.HandleFunc("POST /github-webhook/{webhookUrl}", handleWebhook)
 	log.Fatal(http.ListenAndServe(":8080", mux))
