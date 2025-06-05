@@ -1,14 +1,11 @@
 package main
 
 import (
-	"context"
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
-
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type github_issue struct {
@@ -23,19 +20,49 @@ type github_owner struct {
 type github_repository struct {
 	Id        int          `json:"id"`
 	Full_name string       `json:"full_name"`
+	Html_url  string       `json:"html_url"`
 	Owner     github_owner `json:"owner"`
 }
 
 type github_sender struct {
-	Login string `json:"login"`
-	Id    int    `json:"id"`
+	Url        string `json:"url"`
+	Login      string `json:"login"`
+	Id         int    `json:"id"`
+	Avatar_url string `json:"avatar_url"`
+}
+
+type github_head_commit struct {
+	Url      string   `json:"url"`
+	Message  string   `json:"message"`
+	Added    []string `json:"added"`
+	Removed  []string `json:"removed"`
+	Modified []string `json:"modified"`
+}
+
+type github_commits struct {
+	Id string `json:"id"`
 }
 
 type github_webhook struct {
-	Action     string            `json:"action"`
-	Issue      github_issue      `json:"issue"`
-	Repository github_repository `json:"repository"`
-	Sender     github_sender     `json:"sender"`
+	Id          string
+	Action      string             `json:"action"`
+	Issue       github_issue       `json:"issue"`
+	Repository  github_repository  `json:"repository"`
+	Sender      github_sender      `json:"sender"`
+	Private     bool               `json:"private"`
+	Full_name   string             `json:"full_name"`
+	Head_commit github_head_commit `json:"head_commit"`
+}
+
+type Response struct {
+	Id            string
+	Event         string `json:"message"`
+	Rep_name      string `json:"rep_name"`
+	Rep_link      string `json:"rep_link"`
+	Author        string `json:"author"`
+	Author_url    string `json:"author_url"`
+	Author_avatar string `json:"avatar_url"`
+	Comment       string `json:"comment"`
 }
 
 type WebhookDispatcher struct {
@@ -63,15 +90,47 @@ func setupHandlers() *WebhookDispatcher {
 	dispatcher := NewWebhookDispatcher()
 
 	dispatcher.RegisterHandler("opened", opened)
+	dispatcher.RegisterHandler("push", commit)
 	fmt.Printf("%+v\n", dispatcher)
 	return dispatcher
 }
 
 func commit(payload *github_webhook) error {
-	message := "Сделан коммит"
-	commitAuthor := payload.Sender.Login
+
+	event := "Сделан коммит"
 	repository_name := payload.Repository.Full_name
-	issue_url := payload.Repository
+	rep_link := payload.Repository.Html_url
+	author_name := payload.Sender.Login
+	author_url := payload.Sender.Url
+	avatar_url := payload.Sender.Avatar_url
+	comment := payload.Head_commit.Message
+
+	rep := Response{
+		Id:            payload.Id,
+		Event:         event,
+		Author:        author_name,
+		Author_url:    author_url,
+		Author_avatar: avatar_url,
+		Rep_name:      repository_name,
+		Rep_link:      rep_link,
+		Comment:       comment,
+	}
+
+	jsonData, err := json.Marshal(rep)
+	if err != nil {
+		return err
+	}
+	resp, err := http.Post(
+		"http://127.0.0.1:5000/",
+		"application/json",
+		bytes.NewBuffer(jsonData),
+	)
+	if err != nil {
+		fmt.Println("Ошибка при отправке запроса:", err)
+		return err
+	}
+	defer resp.Body.Close()
+	return err
 }
 
 func opened(payload *github_webhook) error {
@@ -94,18 +153,23 @@ func handleWebhook(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Content-Type must be application/json", http.StatusUnsupportedMediaType)
 		return
 	}
-
+	webhookUrl := r.PathValue("webhookUrl")
 	hook := github_webhook{}
+	hook.Id = webhookUrl
+	action := r.Header.Get("X-GitHub-Event")
+	if action == "" {
+		http.Error(w, "Missing X-GitHub-Event header", http.StatusBadRequest)
+		return
+	}
+	fmt.Println(action)
 
 	err := json.NewDecoder(r.Body).Decode(&hook)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Error decoding JSON: %v", err), http.StatusBadRequest)
 		return
 	}
-
 	defer r.Body.Close()
-
-	if err := dispatcher.Handle(hook.Action, &hook); err != nil {
+	if err := dispatcher.Handle(action, &hook); err != nil {
 		fmt.Printf("Error: %v\n", err)
 	}
 
@@ -113,26 +177,6 @@ func handleWebhook(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-
-	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(" mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.2.6"))
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// Create connect
-	err = client.Connect(context.TODO())
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// Check the connection
-	err = client.Ping(context.TODO(), nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	fmt.Println("Connected to MongoDB!")
-
 	mux := http.NewServeMux()
 	mux.HandleFunc("POST /github-webhook/{webhookUrl}", handleWebhook)
 	log.Fatal(http.ListenAndServe(":8080", mux))

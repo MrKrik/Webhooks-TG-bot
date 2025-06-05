@@ -4,7 +4,7 @@ from aiogram import types, F, Router
 from random import choices
 import string
 import tests.config as config
-import db
+import bot.db as db
 
 router = Router()
 
