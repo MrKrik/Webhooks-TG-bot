@@ -1,5 +1,5 @@
 from aiogram import types, F, Router
-import bot.db as db
+import db
 
 router = Router()
 

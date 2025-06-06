@@ -1,7 +1,7 @@
 import pymongo
-import tests.config as config
+import os
 
-client = pymongo.MongoClient(config.DB_URL)
+client = pymongo.MongoClient(os.getenv("DB_URL"))
 Git = client["GitHook-db"]
 coll_webhooks = Git["Webhooks"]
 

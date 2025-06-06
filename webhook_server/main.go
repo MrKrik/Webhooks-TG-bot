@@ -6,7 +6,16 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+
+	"github.com/joho/godotenv"
 )
+
+func init() {
+	if err := godotenv.Load(); err != nil {
+		log.Print("No .env file found")
+	}
+}
 
 type github_issue struct {
 	Url    string `json:"url"`
@@ -37,10 +46,6 @@ type github_head_commit struct {
 	Added    []string `json:"added"`
 	Removed  []string `json:"removed"`
 	Modified []string `json:"modified"`
-}
-
-type github_commits struct {
-	Id string `json:"id"`
 }
 
 type github_webhook struct {
@@ -91,7 +96,6 @@ func setupHandlers() *WebhookDispatcher {
 
 	dispatcher.RegisterHandler("opened", opened)
 	dispatcher.RegisterHandler("push", commit)
-	fmt.Printf("%+v\n", dispatcher)
 	return dispatcher
 }
 
@@ -121,7 +125,7 @@ func commit(payload *github_webhook) error {
 		return err
 	}
 	resp, err := http.Post(
-		"http://127.0.0.1:5000/",
+		os.Getenv("BOT_URL"),
 		"application/json",
 		bytes.NewBuffer(jsonData),
 	)

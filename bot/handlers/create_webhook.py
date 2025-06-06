@@ -3,8 +3,8 @@ from aiogram.fsm.context import FSMContext
 from aiogram import types, F, Router
 from random import choices
 import string
-import tests.config as config
-import bot.db as db
+import db
+import os
 
 router = Router()
 
@@ -16,9 +16,9 @@ class CreateWebhook(StatesGroup):
     user_id = State()
 
 def webhook_create(name,user_id, channel_id, thread_id):
-    server_url = config.URL
+    server_url = os.getenv("URL")
     random_url = ''.join(choices(string.ascii_letters,k=20))
-    full_url = server_url+'github-webhook/'+random_url
+    full_url = server_url+'/github-webhook/'+random_url
     db.add(name=name,url=random_url, channel_id=channel_id, thread_id=thread_id, author_id=user_id)
     return full_url
 

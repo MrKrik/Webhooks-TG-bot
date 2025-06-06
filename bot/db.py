@@ -1,7 +1,8 @@
 import pymongo 
-import tests.config as config
+import os
 
-client = pymongo.MongoClient(config.DB_URL)
+
+client = pymongo.MongoClient(os.getenv("DB_URL"))
 Git = client["GitHook-db"]
 coll_webhooks = Git["Webhooks"]
 
@@ -9,11 +10,9 @@ def add(name, url, author_id,channel_id, thread_id, secret = None):
     coll_webhooks.insert_one({'webhook_name':name,'url':url, 'author_id':author_id,'channel_id': channel_id, 'thread_id':thread_id, 'secret':secret})
 
 def get_message_settings(url):
-    print(coll_webhooks.find_one({'url':url},{'channel_id': 1,'thread_id': 1, '_id': 0}))
     return coll_webhooks.find_one({'url':url},{'channel_id': 1,'thread_id': 1, '_id': 0})
 
 def get_user_webhooks(user_id):
-    print(list(coll_webhooks.find({'author_id':user_id},{'webhook_name': 1, '_id': 0})))
     return list(coll_webhooks.find({'author_id':user_id},{'webhook_name': 1, '_id': 0}))
 
 def get_webhooks_info(webhook_name):

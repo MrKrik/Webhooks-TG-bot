@@ -1,7 +1,11 @@
 import requests
-import config as config
+from dotenv import load_dotenv
+import os
 
-url = config.TEST_SERVER
+
+load_dotenv()
+
+url = os.getenv("TEST_SERVER")
 data = {
     "action": "opened",
     "issue": {

@@ -1,6 +1,7 @@
 import asyncio
 import logging
-import tests.config as config
+import os
+from dotenv import load_dotenv
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import CommandStart, Command
 from aiogram.fsm.context import FSMContext
@@ -9,12 +10,13 @@ from handlers import create_webhook, view_webhooks
 from keyboards import menu
 from aiogram import types
 
+load_dotenv() 
 
 logging.basicConfig(
         level=logging.INFO,
         format=u'%(filename)s:%(lineno)d #%(levelname)-8s [%(asctime)s] - %(name)s - %(message)s',
     )
-bot = Bot(token=config.TOKEN)
+bot = Bot(token=os.getenv("TOKEN"))
 dp = Dispatcher()
 
 @dp.message(CommandStart())
@@ -38,8 +40,12 @@ async def get_id(message: types.Message):
 async def get_id(message: types.Message):
     await message.answer(f'{message.chat.id}')
 
-async def webhook_send(message, channel_id = config.TEST_CHANNEL, thread_id = config.TEST_THREAD, web_preview = True):
-    await bot.send_message(chat_id = channel_id, text=message, message_thread_id=thread_id, disable_web_page_preview=web_preview, parse_mode='MARKDOWN')
+async def webhook_send(message, channel_id, thread_id, web_preview = True):
+    # todo no if str thread problem check go server response
+    if thread_id == "None":
+        await bot.send_message(chat_id = channel_id, text=message, disable_web_page_preview=web_preview, parse_mode='MARKDOWN')
+    else:
+        await bot.send_message(chat_id = channel_id, text=message, message_thread_id=thread_id, disable_web_page_preview=web_preview, parse_mode='MARKDOWN')
 
 async def main():
     dp.include_router(create_webhook.router)
