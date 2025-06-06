@@ -177,7 +177,6 @@ func handleWebhook(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("Error: %v\n", err)
 	}
 
-	return
 }
 
 func main() {
