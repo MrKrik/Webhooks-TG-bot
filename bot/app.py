@@ -10,7 +10,6 @@ async def submit2():
     json_data = (await request.get_json())
     print(json_data)
     if db.get_message_settings(json_data["Id"]) == None:
-        print("No id")
         return "Broken id"
     content_type = request.headers.get('content-type')
     if (content_type == 'application/json'):
